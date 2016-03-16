@@ -3,6 +3,10 @@
 
     <group android:checkableBehavior="single">
         <item
+            android:id="@+id/nav_profile_settings"
+            android:icon="@drawable/ic_menu_manage"
+            android:title="@string/profile" />
+        <item
             android:id="@+id/nav_course_search"
             android:icon="@drawable/ic_menu_camera"
             android:title="@string/course_search" />
@@ -14,10 +18,10 @@
             android:id="@+id/nav_personal"
             android:icon="@drawable/ic_menu_slideshow"
             android:title="@string/personal" />
-        <!--<item-->
-            <!--android:id="@+id/nav_manage"-->
-            <!--android:icon="@drawable/ic_menu_manage"-->
-            <!--android:title="Tools" />-->
+        <item
+            android:id="@+id/nav_logout"
+            android:icon="@drawable/ic_menu_manage"
+            android:title="@string/logout" />
     </group>
 
     <!--<item android:title="Communicate">-->

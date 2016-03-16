@@ -10,9 +10,14 @@
     <string name="course_search">Course Search</string>
     <string name="dept_template">Department-wise template</string>
     <string name="personal">Personal Template</string>
+    <string name="profile">Profile</string>
+    <string name="logout">Logout</string>
 
     <string name="credits_completed"> </string>
     <string name="credits_left"> </string>
     <string name="credits_completed_str">Credits Completed</string>
     <string name="credits_left_str">Credits Left</string>
+
+    <string name="title_activity_personal_template">PersonalTemplate</string>
+    <string name="section_format">Hello World from section: %1$d</string>
 </resources>

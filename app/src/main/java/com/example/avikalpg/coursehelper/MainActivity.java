@@ -1,5 +1,6 @@
 package com.example.avikalpg.coursehelper;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -81,7 +82,7 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_course_search) {
-            // Handle the camera action
+
         } else if (id == R.id.nav_dept_template) {
 
         } else if (id == R.id.nav_personal) {
@@ -91,5 +92,11 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    public void personalTemplate(View view){
+        Intent myIntent = new Intent(this, PersonalTemplate.class);
+//            myIntent.putExtra("key", value); //Optional parameters
+        this.startActivity(myIntent);
     }
 }
