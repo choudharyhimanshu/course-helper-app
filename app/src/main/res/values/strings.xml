@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">Course Helper</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+
+    <string name="welcome_message">Welcome to Course Helper!\nThis is your guide through your journey in IIT Kanpur\'s curriculum.</string>
+    <string name="course_search">Course Search</string>
+    <string name="dept_template">Department-wise template</string>
+    <string name="personal">Personal Template</string>
+
+    <string name="credits_completed"> </string>
+    <string name="credits_left"> </string>
+    <string name="credits_completed_str">Credits Completed</string>
+    <string name="credits_left_str">Credits Left</string>
+</resources>
