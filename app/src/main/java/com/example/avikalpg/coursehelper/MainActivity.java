@@ -99,4 +99,10 @@ public class MainActivity extends AppCompatActivity
 //            myIntent.putExtra("key", value); //Optional parameters
         this.startActivity(myIntent);
     }
+
+    public void gotoLogin(View view){
+        Intent myIntent = new Intent(this, LoginActivity.class);
+//            myIntent.putExtra("key", value); //Optional parameters
+        this.startActivity(myIntent);
+    }
 }
