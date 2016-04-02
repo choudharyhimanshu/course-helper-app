@@ -1,6 +1,8 @@
 package com.example.avikalpg.coursehelper;
 
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -18,6 +20,9 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+
+import org.jsoup.Jsoup;
+import org.w3c.dom.Document;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -70,8 +75,25 @@ public class LoginActivity extends AppCompatActivity {
                                                                 public void onResponse(String response) {
                                                                     if (response.contains(inp_rollno.getText().toString())){
                                                                         txt_message.setText("Login Successful.");
-                                                                        txt_message.append("\r\n");
-                                                                        txt_message.append(response);
+                                                                        org.jsoup.nodes.Document doc = Jsoup.parse(response);
+                                                                        String name = doc.getElementsByTag("h3").first().child(0).text();
+                                                                        name = name.substring(name.indexOf('.')+2,name.indexOf("--"));
+                                                                        String roll_no = doc.getElementsByTag("tr").get(0).child(1).text();
+                                                                        String prog = doc.getElementsByTag("tr").get(0).child(3).text();
+                                                                        String dept = doc.getElementsByTag("tr").get(1).child(1).text();
+                                                                        String username = doc.getElementsByAttributeValue("name","EMAIL").val();
+                                                                        username = username.substring(0,username.indexOf('@'));
+
+                                                                        SharedPreferences shared_pref = getSharedPreferences("UserData", Context.MODE_PRIVATE);
+                                                                        SharedPreferences.Editor editor = shared_pref.edit();
+                                                                        editor.putString("rollno", roll_no);
+                                                                        editor.putString("pswd",inp_password.getText().toString());
+                                                                        editor.putString("name",name);
+                                                                        editor.putString("prog",prog);
+                                                                        editor.putString("dept",dept);
+                                                                        editor.putString("uname",username);
+                                                                        editor.commit();
+
                                                                         pDialog.hide();
                                                                     }
                                                                     else {
