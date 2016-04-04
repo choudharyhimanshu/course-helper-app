@@ -55,6 +55,9 @@ public class MainActivity extends AppCompatActivity
             txt_nav_name.setText(shared_pref.getString("name", "Name"));
             txt_nav_rollno.setText(shared_pref.getString("rollno","Roll No"));
         }
+
+        Intent intent = new Intent(this, CourseService.class);
+        startService(intent);
     }
 
     @Override
