@@ -122,4 +122,9 @@ public class MainActivity extends AppCompatActivity
 //            myIntent.putExtra("key", value); //Optional parameters
         this.startActivity(myIntent);
     }
+
+    public void gotoCourseSearch(View view){
+        Intent myIntent = new Intent(this, CourseSearchActivity.class);
+        this.startActivity(myIntent);
+    }
 }

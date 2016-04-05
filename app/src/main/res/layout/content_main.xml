@@ -82,4 +82,14 @@
         android:layout_alignParentStart="true"
         android:onClick="gotoLogin" />
 
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Course Search"
+        android:id="@+id/button2"
+        android:layout_below="@+id/btnGotoLogin"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:onClick="gotoCourseSearch" />
+
 </RelativeLayout>

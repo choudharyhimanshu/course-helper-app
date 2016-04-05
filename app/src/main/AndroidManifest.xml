@@ -34,7 +34,9 @@
         <service
             android:name=".CourseService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
+
+        <activity android:name=".CourseSearchActivity"></activity>
     </application>
 
 </manifest>
