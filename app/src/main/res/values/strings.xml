@@ -20,4 +20,13 @@
 
     <string name="title_activity_personal_template">PersonalTemplate</string>
     <string name="section_format">Hello World from section: %1$d</string>
+
+
+    <string-array name="search_fields">
+        <item>All</item>
+        <item>Code</item>
+        <item>Title</item>
+        <item>Instructor</item>
+        <item>Instructor Notes</item>
+    </string-array>
 </resources>

@@ -84,9 +84,9 @@ public class CourseService extends Service {
                                 JSONArray courses = response.getJSONObject("data").getJSONArray("courses");
                                 for (int i=0; i < courses.length();i++){
                                     JSONObject course = courses.getJSONObject(i);
-                                    String values = String.format("'%s','%s','%s','%s',%d,'%s','%s','%s','%s','%s'",course.getString("code"),course.getString("title"),course.getString("instructor"),course.getString("instr_mail"),course.getInt("credits"),course.getString("credits_distrb"),course.getString("prereq"),course.getString("schedule"),course.getString("dept"),course.getString("instr_notes"));
+                                    String values = String.format("'%s','%s','%s','%s',%d,'%s','%s','%s','%s','%s'",course.getString("code"),course.getString("title"),course.getString("instructor"),course.getString("instr_mail" ),course.getInt("credits" ),course.getString("credits_distrb"),course.getString("prereq" ),course.getString("schedule").replaceAll("(\\r|\\n)", "").trim(),course.getString("dept"),course.getString("instr_notes"));
                                     try {
-                                        db.execSQL("INSERT INTO courses(code,title,instructor,instr_mail,prereq,credits,credits_distrb,dept,schedule,instr_notes) VALUES(" + values + ")");
+                                        db.execSQL("INSERT INTO courses(code,title,instructor,instr_mail,credits,credits_distrb,prereq,schedule,dept,instr_notes) VALUES(" + values + ")");
                                     }
                                     catch (SQLException e){
                                         Log.e("COURSEHELPER", "unexpected SQL exception while inserting course", e);
