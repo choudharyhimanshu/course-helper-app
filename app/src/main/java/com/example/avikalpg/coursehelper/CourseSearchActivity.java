@@ -1,5 +1,9 @@
 package com.example.avikalpg.coursehelper;
 
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.database.Cursor;
 import android.database.CursorIndexOutOfBoundsException;
 import android.database.SQLException;
@@ -7,6 +11,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
+import android.os.IBinder;
 import android.print.PrintAttributes;
 import android.support.annotation.DimenRes;
 import android.support.v7.app.AppCompatActivity;
@@ -40,7 +45,6 @@ public class CourseSearchActivity extends AppCompatActivity {
     private Spinner inp_search_dept;
     private Spinner inp_search_fields;
     private Button btn_search_submit;
-
     private SQLiteDatabase db;
 
     @Override
@@ -68,7 +72,7 @@ public class CourseSearchActivity extends AppCompatActivity {
             });
         }
         else {
-            txt_msg.setText("You do not have course data. Please connect to internet once.");
+            txt_msg.setText("You do not have course data. Please connect to internet and then click on the sync button shown on the top right corner.");
         }
     }
 
@@ -86,6 +90,34 @@ public class CourseSearchActivity extends AppCompatActivity {
             Log.e("COURSEHELPER", "unexpected SQL error.",e);
         }
         return  false;
+    }
+
+    public void syncCourseData(View view){
+        txt_msg.setText("Syncing..");
+        final Intent intent = new Intent(this, CourseService.class);
+        startService(intent);
+        new android.os.Handler().postDelayed(
+                new Runnable() {
+                    public void run() {
+                        stopService(intent);
+                        if(haveCourseData()){
+                            txt_msg.setText("Sync Successful.");
+                            setColumns();
+                            doSearch();
+
+                            btn_search_submit.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    doSearch();
+                                }
+                            });
+                        }
+                        else {
+                            txt_msg.setText("Some error occurred. Please try again.");
+                        }
+                    }
+                },
+                2000);
     }
 
     private void setColumns(){

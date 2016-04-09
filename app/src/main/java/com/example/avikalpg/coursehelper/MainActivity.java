@@ -99,7 +99,8 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_course_search) {
-
+            Intent myIntent = new Intent(this, CourseSearchActivity.class);
+            this.startActivity(myIntent);
         } else if (id == R.id.nav_dept_template) {
 
         } else if (id == R.id.nav_personal) {
