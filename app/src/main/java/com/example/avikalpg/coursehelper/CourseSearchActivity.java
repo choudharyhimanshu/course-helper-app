@@ -113,7 +113,7 @@ public class CourseSearchActivity extends AppCompatActivity {
         }
         table_results.removeAllViewsInLayout();
         Boolean flag = false;
-        String query = "SELECT code,title,instructor,credits,schedule FROM courses";
+        String query = "SELECT code,title,instructor,credits,schedule,instr_mail,prereq,instr_notes FROM courses";
         if (!inp_search_dept.getSelectedItem().toString().equals("All")){
             query += " WHERE dept='"+inp_search_dept.getSelectedItem().toString()+"'";
             flag = true;
@@ -126,9 +126,7 @@ public class CourseSearchActivity extends AppCompatActivity {
                 query += " WHERE (";
             }
             String search_query = inp_search_query.getText().toString();
-            Log.e("QUERYFIELDS",inp_search_fields.getSelectedItem().toString());
             if (inp_search_fields.getSelectedItem().toString().equals("All")){
-                Log.e("ALLFIELDS","Here");
                 query += "code LIKE '%"+search_query+"%' OR title LIKE '%"+search_query+"%' OR instructor LIKE '%"+search_query+"%' OR instr_notes LIKE '%"+search_query+"%')";
             }
             else if (inp_search_fields.getSelectedItem().toString().equals("Code")){
@@ -144,8 +142,7 @@ public class CourseSearchActivity extends AppCompatActivity {
                 query += "instr_notes LIKE '%"+search_query+"%')";
             }
         }
-        query += " LIMIT 50";
-        Log.e("QUERY",query);
+        query += " LIMIT 60";
         try {
             int count = 1;
             Cursor cursor = db.rawQuery(query,null);
@@ -187,14 +184,24 @@ public class CourseSearchActivity extends AppCompatActivity {
                 TextView title = new TextView(this);
                 title.setText(cursor.getString(1));
                 title.setTextColor(Color.parseColor("#34495e"));
-                title.setTextSize(TypedValue.COMPLEX_UNIT_SP,16);
+                title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
                 title.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
                 right_panel.addView(title);
 
                 TextView instructor = new TextView(this);
-                instructor.setText("Instructor : " + cursor.getString(2));
+                instructor.setText("Instructor : " + cursor.getString(2) + "(" + cursor.getString(5) + ")");
                 instructor.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
                 right_panel.addView(instructor);
+
+                TextView instr_notes = new TextView(this);
+                instr_notes.setText("Instructor Notes : " + cursor.getString(7));
+                instr_notes.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                right_panel.addView(instr_notes);
+
+                TextView prereq = new TextView(this);
+                prereq.setText("Pre-req : " + cursor.getString(6));
+                prereq.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                right_panel.addView(prereq);
 
                 TextView schedule = new TextView(this);
                 schedule.setText(cursor.getString(4));
@@ -206,7 +213,8 @@ public class CourseSearchActivity extends AppCompatActivity {
                 table_results.addView(row);
                 cursor.moveToNext();
             }
-            txt_msg.setText("Total courses : " +cursor.getCount());
+            txt_msg.setText("Total results : " +cursor.getCount());
+            cursor.close();
         }
         catch (Exception e){
             txt_msg.setText("Some error occurred. Error : "+e.toString());
