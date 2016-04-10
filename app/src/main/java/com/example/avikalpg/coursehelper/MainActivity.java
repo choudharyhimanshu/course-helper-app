@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -113,9 +114,15 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void personalTemplate(View view){
-        Intent myIntent = new Intent(this, PersonalTemplate.class);
-//            myIntent.putExtra("key", value); //Optional parameters
-        this.startActivity(myIntent);
+        SharedPreferences shared_pref = getSharedPreferences("UserData", MODE_PRIVATE);
+        if (shared_pref.contains("rollno")){
+            Intent myIntent = new Intent(this, PersonalTemplate.class);
+            this.startActivity(myIntent);
+        }
+        else{
+            Intent myIntent = new Intent(this, LoginActivity.class);
+            this.startActivity(myIntent);
+        }
     }
 
     public void gotoLogin(View view){
