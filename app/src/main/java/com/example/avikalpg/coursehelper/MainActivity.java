@@ -16,10 +16,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    private String url_oa_photo = "http://oa.cc.iitk.ac.in:8181/Oa/Jsp/Photo/";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +60,13 @@ public class MainActivity extends AppCompatActivity
         if (shared_pref.contains("rollno")){
             txt_nav_name.setText(shared_pref.getString("name", "Name"));
             txt_nav_rollno.setText(shared_pref.getString("rollno","Roll No"));
+            try {
+                ImageView img_user = (ImageView) headerView.findViewById(R.id.imgUser);
+                Picasso.with(this).load(url_oa_photo+shared_pref.getString("rollno","")+"_0.jpg").into(img_user);
+            }
+            catch (Exception e){
+                Log.e("PICASSO",e.toString());
+            }
         }
 
         Intent intent = new Intent(this, CourseService.class);

@@ -20,9 +20,13 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -43,6 +47,7 @@ public class LoginActivity extends AppCompatActivity {
     String info_url = "http://oars.cc.iitk.ac.in:6060/Student/Default.asp?menu=91";
     String transcript_url = "http://oars.cc.iitk.ac.in:6060/Student/Transcript.asp";
     String currentsem_url = "http://oars.cc.iitk.ac.in:6060/Student/Afteradd_dropStatus.asp";
+    String degree_template_url = "http://192.168.0.105:8000/api/degree-template/";
     String cookie = "";
 
     @Override
@@ -101,6 +106,8 @@ public class LoginActivity extends AppCompatActivity {
                             editor.putString("uname",username);
                             editor.commit();
 
+                            getDegreeTemplate(dept);
+
                             pDialog.hide();
                         }
                         else {
@@ -127,6 +134,53 @@ public class LoginActivity extends AppCompatActivity {
             }
         };
         req_queue.add(infoRequest);
+    }
+
+    private void getDegreeTemplate(String dept){
+        JsonObjectRequest jsObjRequest = new JsonObjectRequest
+                (Request.Method.GET, degree_template_url+dept, null, new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            if(response.getBoolean("success")){
+                                JSONArray courses = response.getJSONObject("data").getJSONArray("courses");
+                                for (int i=0; i < courses.length();i++){
+                                    JSONObject course = courses.getJSONObject(i);
+
+                                    SharedPreferences shared_pref = getSharedPreferences("DegreeTemplate", Context.MODE_PRIVATE);
+                                    SharedPreferences.Editor editor = shared_pref.edit();
+                                    editor.putString("dept", course.getString("dept"));
+                                    editor.putString("dept_name", course.getString("dept_name"));
+                                    editor.putInt("IC", course.getInt("IC"));
+                                    editor.putInt("DC", course.getInt("DC"));
+                                    editor.putInt("UGP1", course.getInt("UGP1"));
+                                    editor.putInt("UGP2", course.getInt("UGP2"));
+                                    editor.putInt("DE", course.getInt("DE"));
+                                    editor.putInt("OE", course.getInt("OE"));
+                                    editor.putInt("SO", course.getInt("SO"));
+                                    editor.putInt("HSS1", course.getInt("HSS1"));
+                                    editor.putInt("HSS2", course.getInt("HSS2"));
+                                    editor.putInt("total", course.getInt("total"));
+                                    editor.commit();
+                                }
+                            }
+                        }
+                        catch (JSONException e){
+                            Log.e("COURSEHELPER", "unexpected JSON exception", e);
+                        }
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.e("COURSEHELPER", "unexpected request exception. Error : "+error.toString(), error);
+                    }
+                });
+        try {
+            req_queue.add(jsObjRequest);
+        }
+        catch (Exception e) {
+            Log.e("COURSEHELPER", "unexpected Request Queue exception", e);
+        }
     }
 
     /*

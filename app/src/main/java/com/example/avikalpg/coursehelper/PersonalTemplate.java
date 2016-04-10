@@ -1,5 +1,7 @@
 package com.example.avikalpg.coursehelper;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -11,13 +13,17 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import java.util.Map;
 
 public class PersonalTemplate extends AppCompatActivity {
 
@@ -107,9 +113,35 @@ public class PersonalTemplate extends AppCompatActivity {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_personal_template, container, false);
-            TextView textView = (TextView) rootView.findViewById(R.id.section_label);
-            textView.setText(getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
+            View rootView;
+            if (getArguments().getInt(ARG_SECTION_NUMBER) == 1){
+                rootView = inflater.inflate(R.layout.fragment_personal_template, container, false);
+                LinearLayout layout_core_template = (LinearLayout) rootView.findViewById(R.id.layoutCoreTemplate);
+
+                SharedPreferences shared_pref = getActivity().getSharedPreferences("DegreeTemplate", MODE_PRIVATE);
+                TextView row = new TextView(getContext());
+                row.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, 1.0f));
+
+                if (shared_pref.contains("dept")) {
+                    row.setText("Institue Core : " + shared_pref.getInt("IC", 0));
+                    row.append("\n\rDepartment Compulsory : " + shared_pref.getInt("DC", 0));
+                    row.append("\n\rDepartment Elective : "+shared_pref.getInt("DE",0));
+                    row.append("\n\rOpen Elective : "+shared_pref.getInt("OE",0));
+                    row.append("\n\rSO : "+shared_pref.getInt("SO",0));
+                    row.append("\n\rHSS-I : "+shared_pref.getInt("HSS1",0));
+                    row.append("\n\rHSS-II : "+shared_pref.getInt("HSS2",0));
+                    row.append("\n\rUGP-I : "+shared_pref.getInt("UGP1",0));
+                    row.append("\n\rUGP-II : "+shared_pref.getInt("UGP2",0));
+                    row.append("\n\rTotal : " + shared_pref.getInt("total", 0));
+                }
+                else {
+                    row.setText("Data not available. :(");
+                }
+                layout_core_template.addView(row);
+            }
+            else{
+                rootView = inflater.inflate(R.layout.fragment_course_options, container, false);
+            }
             return rootView;
         }
     }
