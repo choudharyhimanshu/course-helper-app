@@ -26,6 +26,10 @@ public class MainActivity extends AppCompatActivity
 
     private String url_oa_photo = "http://oa.cc.iitk.ac.in:8181/Oa/Jsp/Photo/";
 
+    private TextView txt_nav_name;
+    private TextView txt_nav_rollno;
+    private ImageView img_user;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,15 +57,15 @@ public class MainActivity extends AppCompatActivity
 
         View headerView = navigationView.getHeaderView(0);
 
-        TextView txt_nav_name = (TextView) headerView.findViewById(R.id.txtNavName);
-        TextView txt_nav_rollno = (TextView) headerView.findViewById(R.id.txtNavRollno);
+        txt_nav_name = (TextView) headerView.findViewById(R.id.txtNavName);
+        txt_nav_rollno = (TextView) headerView.findViewById(R.id.txtNavRollno);
+        img_user = (ImageView) headerView.findViewById(R.id.imgUser);
 
         SharedPreferences shared_pref = getSharedPreferences("UserData", MODE_PRIVATE);
         if (shared_pref.contains("rollno")){
             txt_nav_name.setText(shared_pref.getString("name", "Name"));
             txt_nav_rollno.setText(shared_pref.getString("rollno","Roll No"));
             try {
-                ImageView img_user = (ImageView) headerView.findViewById(R.id.imgUser);
                 Picasso.with(this).load(url_oa_photo+shared_pref.getString("rollno","")+"_0.jpg").into(img_user);
             }
             catch (Exception e){
@@ -118,6 +122,14 @@ public class MainActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_personal) {
 
+        } else if (id == R.id.nav_logout){
+            SharedPreferences shared_pref = getSharedPreferences("UserData", MODE_PRIVATE);
+            SharedPreferences.Editor editor = shared_pref.edit();
+            editor.clear();
+            editor.commit();
+            txt_nav_name.setText(null);
+            txt_nav_rollno.setText(null);
+            img_user.setImageResource(0);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

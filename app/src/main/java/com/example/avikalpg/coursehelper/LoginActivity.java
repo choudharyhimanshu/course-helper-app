@@ -143,7 +143,7 @@ public class LoginActivity extends AppCompatActivity {
                     public void onResponse(JSONObject response) {
                         try {
                             if(response.getBoolean("success")){
-                                JSONArray courses = response.getJSONObject("data").getJSONArray("courses");
+                                JSONArray courses = response.getJSONObject("data").getJSONArray("template");
                                 for (int i=0; i < courses.length();i++){
                                     JSONObject course = courses.getJSONObject(i);
 
@@ -163,6 +163,9 @@ public class LoginActivity extends AppCompatActivity {
                                     editor.putInt("total", course.getInt("total"));
                                     editor.commit();
                                 }
+                            }
+                            else {
+                                Log.e("GETTEMPLATE","Response unsuccessful.");
                             }
                         }
                         catch (JSONException e){
