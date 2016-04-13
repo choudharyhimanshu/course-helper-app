@@ -36,12 +36,12 @@
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:id="@+id/txtStatsMsg"
                 android:gravity="center"
-                android:layout_marginTop="20dp" />
+                android:layout_marginTop="5dp" />
 
             <TableLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="5dp"
                 android:layout_weight="1.0"
                 android:id="@+id/tableCreditsStats"></TableLayout>
 
@@ -51,13 +51,14 @@
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="Remaining Credits"
                 android:id="@+id/textView12"
-                android:textColor="#34495e" />
+                android:textColor="#34495e"
+                android:layout_marginTop="20dp" />
 
-            <LinearLayout
-                android:orientation="vertical"
+            <TableLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginTop="10dp"></LinearLayout>
+                android:id="@+id/tableRemainCredits"
+                android:layout_marginTop="10dp"></TableLayout>
 
             <TextView
                 android:layout_width="match_parent"
@@ -68,13 +69,12 @@
                 android:layout_marginTop="20dp"
                 android:textColor="#34495e" />
 
-            <LinearLayout
-                android:orientation="vertical"
+            <TableLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:id="@+id/layoutCourseList"
-                android:layout_weight="1"></LinearLayout>
+                android:id="@+id/tableCourseList"
+                android:layout_weight="1"></TableLayout>
 
         </LinearLayout>
     </ScrollView>

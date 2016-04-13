@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -128,7 +129,7 @@ public class PersonalTemplate extends AppCompatActivity {
             View rootView;
             Activity activity = getActivity();
 
-            SQLiteDatabase db = activity.openOrCreateDatabase("personal_courses", MODE_PRIVATE, null);
+            SQLiteDatabase db = activity.openOrCreateDatabase("coursehelper", MODE_PRIVATE, null);
 
 
             if (getArguments().getInt(ARG_SECTION_NUMBER) == 1){
@@ -140,10 +141,9 @@ public class PersonalTemplate extends AppCompatActivity {
                 TableLayout table_credits = (TableLayout) rootView.findViewById(R.id.tableCreditsStats);
 
                 TableLayout.LayoutParams row_params = new TableLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT,1.0f);
-                TableRow.LayoutParams col_type_params = new TableRow.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT,0.6f);
-                TableRow.LayoutParams col_required_params = new TableRow.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT,0.2f);
-                TableRow.LayoutParams col_completed_params = new TableRow.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT,0.2f);
-
+                TableRow.LayoutParams col_type_params = new TableRow.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT,0.3f);
+                TableRow.LayoutParams col_required_params = new TableRow.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT,0.35f);
+                TableRow.LayoutParams col_completed_params = new TableRow.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT,0.35f);
 
                 if (shared_pref.contains("dept")){
 
@@ -155,8 +155,7 @@ public class PersonalTemplate extends AppCompatActivity {
                         public String grade;
                     }
 
-                    List<Course> IC = new ArrayList<Course>();
-                    List<Course> DC = new ArrayList<Course>();
+                    List<Course> Comp = new ArrayList<Course>();
                     List<Course> DE = new ArrayList<Course>();
                     List<Course> OE = new ArrayList<Course>();
                     List<Course> SO = new ArrayList<Course>();
@@ -165,7 +164,6 @@ public class PersonalTemplate extends AppCompatActivity {
                     List<Course> UGP1 = new ArrayList<Course>();
                     List<Course> UGP2 = new ArrayList<Course>();
                     List<Course> backlogs = new ArrayList<Course>();
-                    int total = 0;
 
                     String query = "SELECT code,title,type,credits,grade FROM personal_courses";
 
@@ -181,10 +179,10 @@ public class PersonalTemplate extends AppCompatActivity {
                             course.credits = cursor.getInt(3);
                             course.grade = cursor.getString(4);
 
-                            if (!course.grade.equals("F")){
+                            if (!course.grade.equals("F") && !course.grade.equals("E")){
                                 if (course.type.equals("COMPULSORY")){
                                     course.type = "COMPULSORY";
-                                    IC.add(course);
+                                    Comp.add(course);
                                 }
                                 else if (course.type.equals("HSS") || course.type.equals("HSS I")){
                                     course.type = "HSS I";
@@ -222,48 +220,210 @@ public class PersonalTemplate extends AppCompatActivity {
                             cursor.moveToNext();
                         }
                         cursor.close();
-
-                        LinearLayout courselist = (LinearLayout) rootView.findViewById(R.id.layoutCourseList);
-                        LinearLayout.LayoutParams courselist_item_params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT,1f);
-
-                        int i,j,total_credits=0,count_baskets=10;
-
-                        String[] headings = {"Institute Core Courses","Department Compulsory","Department Elective Courses","Open Elective Courses","SO/ESO Courses","HSS-I Courses","HSS-II Courses","UGP-I Courses","UGP-II Courses","Backlog Courses"};
-                        List<Course>[] baskets = new ArrayList[10];
-
-                        baskets[0] = IC;
-                        baskets[1] = DC;
-                        baskets[2] = DE;
-                        baskets[3] = OE;
-                        baskets[4] = SO;
-                        baskets[5] = HSS1;
-                        baskets[6] = HSS2;
-                        baskets[7] = UGP1;
-                        baskets[8] = UGP2;
-                        baskets[9] = backlogs;
-
-                        for (i=0;i<count_baskets;i++){
-                            TextView heading = new TextView(activity);
-                            heading.setLayoutParams(courselist_item_params);
-                            heading.setText(headings[i]);
-                            heading.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
-                            heading.setTextColor(Color.parseColor("#2980b9"));
-                            heading.setGravity(Gravity.CENTER);
-
-                            courselist.addView(heading);
-                            for (j=0; j<baskets[i].size();j++){
-                                TextView temp = new TextView(activity);
-                                temp.setLayoutParams(courselist_item_params);
-                                temp.setPadding(0,5,0,5);
-                                temp.setText(baskets[i].get(j).code + " - " + baskets[i].get(j).title + ' ' + baskets[i].get(j).credits + ' ' + baskets[i].get(j).grade);
-                                courselist.addView(temp);
-                                total_credits += baskets[i].get(j).credits;
-                            }
-                        }
                     }
                     catch (Exception e){
                         txt_msg_stats.setText(e.toString());
                     }
+
+                    TableLayout remaining_credits = (TableLayout) rootView.findViewById(R.id.tableRemainCredits);
+                    TableRow.LayoutParams remain_type = new TableRow.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT,.8f);
+                    TableRow.LayoutParams remain_amount = new TableRow.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT,.2f);
+                    TableLayout courselist = (TableLayout) rootView.findViewById(R.id.tableCourseList);
+                    TableLayout.LayoutParams courselist_row_params = new TableLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT,1.0f);
+                    TableRow.LayoutParams col_courselist_code = new TableRow.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT,0.25f);
+                    TableRow.LayoutParams col_courselist_title = new TableRow.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT,0.65f);
+                    TableRow.LayoutParams col_courselist_credits = new TableRow.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT,0.05f);
+                    TableRow.LayoutParams col_courselist_grade = new TableRow.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT,0.05f);
+                    TableRow.LayoutParams col_courselist_heading = new TableRow.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT,1.0f);
+
+                    int i,j,count_baskets=9;
+
+                    String[] headings = {"Compulsory","Department Elective","Open Elective","SO/ESO","HSS-I","HSS-II","UGP-I","UGP-II","Backlogs"};
+                    List<Course>[] baskets = new ArrayList[9];
+                    int[] credits_sum = new int[9];
+                    int[] degree_template = new int[9];
+
+                    baskets[0] = Comp;
+                    baskets[1] = DE;
+                    baskets[2] = OE;
+                    baskets[3] = SO;
+                    baskets[4] = HSS1;
+                    baskets[5] = HSS2;
+                    baskets[6] = UGP1;
+                    baskets[7] = UGP2;
+                    baskets[8] = backlogs;
+
+                    degree_template[0] = shared_pref.getInt("IC",0) + shared_pref.getInt("DC",0);
+                    degree_template[1] = shared_pref.getInt("DE",0);
+                    degree_template[2] = shared_pref.getInt("OE",0);
+                    degree_template[3] = shared_pref.getInt("SO",0);
+                    degree_template[4] = shared_pref.getInt("HSS1",0);
+                    degree_template[5] = shared_pref.getInt("HSS2",0);
+                    degree_template[6] = shared_pref.getInt("UGP1",0);
+                    degree_template[7] = shared_pref.getInt("UGP2",0);
+
+                    for (i=0;i<count_baskets;i++){
+                        TableRow courselist_row = new TableRow(activity);
+                        courselist_row.setLayoutParams(courselist_row_params);
+                        courselist_row.setPadding(0,5,0,5);
+
+                        TextView heading = new TextView(activity);
+                        heading.setLayoutParams(col_courselist_heading);
+                        heading.setText(headings[i]);
+                        heading.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+                        heading.setTextColor(Color.parseColor("#2980b9"));
+                        heading.setGravity(Gravity.CENTER);
+                        courselist_row.addView(heading);
+
+                        courselist.addView(courselist_row);
+
+                        for (j=0; j<baskets[i].size();j++){
+                            TableRow courselist_temp_row = new TableRow(activity);
+                            courselist_temp_row.setLayoutParams(courselist_row_params);
+                            courselist_temp_row.setPadding(0, 5, 0, 5);
+
+                            TextView col_code = new TextView(activity);
+                            col_code.setLayoutParams(col_courselist_code);
+                            col_code.setText(baskets[i].get(j).code);
+                            courselist_temp_row.addView(col_code);
+
+                            TextView col_title = new TextView(activity);
+                            col_title.setLayoutParams(col_courselist_title);
+                            col_title.setText(baskets[i].get(j).title);
+                            courselist_temp_row.addView(col_title);
+
+                            TextView col_credits = new TextView(activity);
+                            col_credits.setLayoutParams(col_courselist_credits);
+                            col_credits.setGravity(Gravity.CENTER);
+                            col_credits.setText("" + baskets[i].get(j).credits);
+                            courselist_temp_row.addView(col_credits);
+
+                            TextView col_grade = new TextView(activity);
+                            col_grade.setLayoutParams(col_courselist_grade);
+                            col_grade.setGravity(Gravity.CENTER);
+                            col_grade.setText(baskets[i].get(j).grade);
+                            courselist_temp_row.addView(col_grade);
+
+                            courselist.addView(courselist_temp_row);
+
+                            credits_sum[i] += baskets[i].get(j).credits;
+                        }
+                    }
+
+                    TableRow table_heading = new TableRow(activity);
+                    table_heading.setLayoutParams(row_params);
+                    table_heading.setPadding(0, 5, 0, 5);
+
+                    TextView heading_type = new TextView(activity);
+                    heading_type.setLayoutParams(col_type_params);
+                    heading_type.setText("Course Type");
+                    heading_type.setTypeface(null, Typeface.BOLD);
+                    table_heading.addView(heading_type);
+                    TextView heading_req = new TextView(activity);
+                    heading_req.setLayoutParams(col_required_params);
+                    heading_req.setText("Min Required");
+                    heading_req.setGravity(Gravity.CENTER);
+                    heading_req.setTypeface(null, Typeface.BOLD);
+                    table_heading.addView(heading_req);
+                    TextView heading_done = new TextView(activity);
+                    heading_done.setLayoutParams(col_completed_params);
+                    heading_done.setText("Completed");
+                    heading_done.setGravity(Gravity.CENTER);
+                    heading_done.setTypeface(null, Typeface.BOLD);
+                    table_heading.addView(heading_done);
+
+                    table_credits.addView(table_heading);
+
+                    int total_req=0,total_done=0,total_remains=0;
+
+                    for (i=0; i<count_baskets-1;i++){
+                        total_req += degree_template[i];
+                        total_done += credits_sum[i];
+
+                        TableRow row = new TableRow(activity);
+                        row.setLayoutParams(row_params);
+                        row.setPadding(0, 5, 0, 5);
+
+                        TextView col_type = new TextView(activity);
+                        col_type.setLayoutParams(col_type_params);
+                        col_type.setText(headings[i]);
+                        row.addView(col_type);
+
+                        TextView col_req = new TextView(activity);
+                        col_req.setLayoutParams(col_required_params);
+                        col_req.setText(String.valueOf(degree_template[i]));
+                        col_req.setGravity(Gravity.CENTER);
+                        row.addView(col_req);
+
+                        TextView col_done = new TextView(activity);
+                        col_done.setLayoutParams(col_completed_params);
+                        col_done.setText(String.valueOf(credits_sum[i]));
+                        col_done.setGravity(Gravity.CENTER);
+                        row.addView(col_done);
+
+                        table_credits.addView(row);
+
+                        if (degree_template[i] - credits_sum[i] > 0){
+                            total_remains += degree_template[i] - credits_sum[i];
+
+                            TableRow row1 = new TableRow(activity);
+                            row1.setLayoutParams(row_params);
+                            row1.setPadding(0, 5, 0, 5);
+
+                            TextView rem_type = new TextView(activity);
+                            rem_type.setLayoutParams(remain_type);
+                            rem_type.setText(headings[i]);
+                            row1.addView(rem_type);
+
+                            TextView rem_amount = new TextView(activity);
+                            rem_amount.setLayoutParams(remain_amount);
+                            rem_amount.setGravity(Gravity.CENTER);
+                            rem_amount.setText(String.valueOf(degree_template[i] - credits_sum[i]));
+                            row1.addView(rem_amount);
+
+                            remaining_credits.addView(row1);
+                        }
+                    }
+
+                    TableRow tot_stats = new TableRow(activity);
+                    tot_stats.setLayoutParams(row_params);
+                    tot_stats.setPadding(0, 5, 0, 5);
+
+                    TextView col_type = new TextView(activity);
+                    col_type.setLayoutParams(col_type_params);
+                    col_type.setText("Total");
+                    tot_stats.addView(col_type);
+
+                    TextView col_req = new TextView(activity);
+                    col_req.setLayoutParams(col_required_params);
+                    col_req.setText(String.valueOf(total_req));
+                    col_req.setGravity(Gravity.CENTER);
+                    tot_stats.addView(col_req);
+
+                    TextView col_done = new TextView(activity);
+                    col_done.setLayoutParams(col_completed_params);
+                    col_done.setText(String.valueOf(total_done));
+                    col_done.setGravity(Gravity.CENTER);
+                    tot_stats.addView(col_done);
+
+                    table_credits.addView(tot_stats);
+
+                    TableRow tot_remains = new TableRow(activity);
+                    tot_remains.setLayoutParams(row_params);
+                    tot_remains.setPadding(0, 5, 0, 5);
+
+                    TextView rem_type = new TextView(activity);
+                    rem_type.setLayoutParams(remain_type);
+                    rem_type.setText("Total");
+                    tot_remains.addView(rem_type);
+
+                    TextView rem_amount = new TextView(activity);
+                    rem_amount.setLayoutParams(remain_amount);
+                    rem_amount.setGravity(Gravity.CENTER);
+                    rem_amount.setText(String.valueOf(total_remains));
+                    tot_remains.addView(rem_amount);
+
+                    remaining_credits.addView(tot_remains);
                 }
                 else {
                     TableRow row = new TableRow(activity);

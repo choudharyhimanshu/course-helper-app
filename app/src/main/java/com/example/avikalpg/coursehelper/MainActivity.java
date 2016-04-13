@@ -3,6 +3,7 @@ package com.example.avikalpg.coursehelper;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -127,6 +128,13 @@ public class MainActivity extends AppCompatActivity
             SharedPreferences.Editor editor = shared_pref.edit();
             editor.clear();
             editor.commit();
+            SQLiteDatabase db = openOrCreateDatabase("coursehelper", MODE_PRIVATE, null);
+            try {
+                db.execSQL("DELETE FROM personal_courses");
+            }
+            catch (Exception e){
+                Log.e("LOGOUT", e.toString());
+            }
             txt_nav_name.setText(null);
             txt_nav_rollno.setText(null);
             img_user.setImageResource(0);

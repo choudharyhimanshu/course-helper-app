@@ -59,7 +59,7 @@ public class LoginActivity extends AppCompatActivity {
         inp_password = (EditText) findViewById(R.id.inpLoginPass);
         btn_submit = (Button) findViewById(R.id.btnLoginSubmit);
         txt_message = (TextView) findViewById(R.id.txtLoginMsg);
-        db = openOrCreateDatabase("personal_courses", MODE_PRIVATE, null);
+        db = openOrCreateDatabase("coursehelper", MODE_PRIVATE, null);
 
         pDialog = new ProgressDialog(this);
         req_queue = Volley.newRequestQueue(this);
