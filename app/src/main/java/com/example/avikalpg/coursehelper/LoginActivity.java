@@ -109,7 +109,7 @@ public class LoginActivity extends AppCompatActivity {
 
                             getDegreeTemplate(dept);
 
-                            pDialog.hide();
+//                            pDialog.hide();
                         }
                         else {
                             txt_message.setText("Login Failed. Some error occurred.");
@@ -222,7 +222,7 @@ public class LoginActivity extends AppCompatActivity {
                                     }
                                 }
                             }
-                            pDialog.hide();
+//                            pDialog.hide();
                         }
                         else {
                             txt_message.setText("Transcript Download Failed. Some error occurred.");
@@ -284,6 +284,7 @@ public class LoginActivity extends AppCompatActivity {
                             }
                             txt_message.setText(temp);
                             pDialog.hide();
+                            gotoPersonalTemplate();
                         }
                         else {
                             txt_message.setText("Current Sem Courses' Download Failed. Some error occurred.");
@@ -310,7 +311,6 @@ public class LoginActivity extends AppCompatActivity {
         };
         req_queue.add(transcriptRequest);
         req_queue.add(currentsemRequest);
-        gotoPersonalTemplate();
     }
 
     public void submitLogin(View view){
@@ -329,6 +329,7 @@ public class LoginActivity extends AppCompatActivity {
                                             public void onResponse(String response) {
                                                 if(!response.contains("INVALID USERNAME/PASSWORD")) {
                                                     txt_message.setText("Login Successful.");
+                                                    pDialog.setMessage("Login Successful. Fetching data ..");
                                                     getUserInfo();
                                                     getTranscript();
                                                 }

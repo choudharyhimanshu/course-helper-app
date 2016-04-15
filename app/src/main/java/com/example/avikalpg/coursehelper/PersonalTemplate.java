@@ -181,15 +181,17 @@ public class PersonalTemplate extends AppCompatActivity {
 
                             if (!course.grade.equals("F") && !course.grade.equals("E")){
                                 if (course.type.equals("COMPULSORY")){
-                                    course.type = "COMPULSORY";
-                                    Comp.add(course);
                                     if(course.code.matches("[A-Z]SO\\d{3}[A-Z]?")){
                                         course.type = "SO";
                                         SO.add(course);
                                     }
+                                    else {
+                                        course.type = "COMPULSORY";
+                                        Comp.add(course);
+                                    }
                                 }
                                 else if (course.type.contains("HSS")){
-                                    if (course.code.matches("[A-Z]+1\\d{3}[A-Z]?")){
+                                    if (course.code.matches("[A-Z]+1\\d{2}[A-Z]?")){
                                         course.type = "HSS I";
                                         HSS1.add(course);
                                     }
