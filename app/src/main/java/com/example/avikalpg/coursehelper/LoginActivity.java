@@ -2,6 +2,7 @@ package com.example.avikalpg.coursehelper;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -186,25 +187,6 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    /*
-     * This function is not really required. Delete it at will
-     */
-    private String checkPersonalCoursesTable(){
-        String ret = "";
-        Cursor cursor = db.rawQuery("SELECT * FROM personal_courses", null);
-        cursor.moveToFirst();
-        while (!cursor.isAfterLast()) {
-            for (int x = 0; x < 5; x++){
-                // TODO: Replace the hard coded value 5 with variable
-                ret += cursor.getString(x)+" ";
-            }
-            ret += "\n";
-            cursor.moveToNext();
-        }
-        cursor.close();
-        return ret;
-    }
-
     private void getTranscript() {
         StringRequest transcriptRequest = new StringRequest(Request.Method.GET, transcript_url,
                 new Response.Listener<String>() {
@@ -240,13 +222,7 @@ public class LoginActivity extends AppCompatActivity {
                                     }
                                 }
                             }
-                            txt_message.setText(checkPersonalCoursesTable());
-
-//                            SharedPreferences shared_pref = getSharedPreferences("Transcript", Context.MODE_PRIVATE);
-//                            SharedPreferences.Editor editor = shared_pref.edit();
-//                            editor.putString("rollno", roll_no);
-//                            editor.commit();
-
+                            gotoPersonalTemplate();
                             pDialog.hide();
                         }
                         else {
@@ -277,15 +253,6 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(String response) {
                         if (response.contains(inp_rollno.getText().toString())){
-//                            txt_message.setText(response);
-//                            org.jsoup.nodes.Document doc = Jsoup.parse(response);
-//                            String roll_no = doc.getElementsByTag("tr").get(0).child(1).text();
-
-//                            SharedPreferences shared_pref = getSharedPreferences("Transcript", Context.MODE_PRIVATE);
-//                            SharedPreferences.Editor editor = shared_pref.edit();
-//                            editor.putString("rollno", roll_no);
-//                            editor.commit();
-
                             pDialog.hide();
                         }
                         else {
@@ -329,7 +296,7 @@ public class LoginActivity extends AppCompatActivity {
                                         new Response.Listener<String>() {
                                             @Override
                                             public void onResponse(String response) {
-                                                if(!response.contains("INVALID USERNAME/PASSWORD")){
+                                                if(!response.contains("INVALID USERNAME/PASSWORD")) {
                                                     txt_message.setText("Login Successful.");
                                                     getUserInfo();
                                                     getTranscript();
@@ -389,6 +356,18 @@ public class LoginActivity extends AppCompatActivity {
             req_queue.add(cookieRequest);
         } else {
             txt_message.setText("Please enter something.");
+        }
+    }
+
+    private void gotoPersonalTemplate(){
+        SharedPreferences shared_pref = getSharedPreferences("UserData", MODE_PRIVATE);
+        if (shared_pref.contains("rollno")){
+            Intent myIntent = new Intent(this, PersonalTemplate.class);
+            this.startActivity(myIntent);
+        }
+        else{
+            Intent myIntent = new Intent(this, MainActivity.class);
+            this.startActivity(myIntent);
         }
     }
 }
