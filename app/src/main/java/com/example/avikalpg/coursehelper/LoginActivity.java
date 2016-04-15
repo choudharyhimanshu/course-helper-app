@@ -222,7 +222,6 @@ public class LoginActivity extends AppCompatActivity {
                                     }
                                 }
                             }
-                            gotoPersonalTemplate();
                             pDialog.hide();
                         }
                         else {
@@ -253,6 +252,37 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(String response) {
                         if (response.contains(inp_rollno.getText().toString())){
+                            org.jsoup.nodes.Document doc = Jsoup.parse(response);
+                            Elements all_rows = doc.getElementsByTag("tr");
+                            String temp = "";
+                            for (int position = 0; position < all_rows.size(); position += 1) {
+                                String row_id = all_rows.get(position).child(0).text();
+                                if (row_id.matches("[A-Z]+\\d{3}[A-Z]*")) {
+                                    Element row = all_rows.get(position);
+                                    String values = "";
+                                    for (int child_no = 0; child_no < 7; child_no++){
+                                        // TODO: Change the above hard-coded value (7) to variable
+                                        if((child_no < 3) || (child_no == 6))
+                                        values +=  "'" + row.child(child_no).text() + "',";
+                                    }
+                                    try {
+                                        values = values + "'I'";
+                                        Cursor cursor = db.rawQuery("SELECT * FROM personal_courses WHERE code = '"+row_id+"'", null);
+                                        int count = cursor.getCount();
+                                        cursor.close();
+                                        if (count > 0){
+                                            db.execSQL("UPDATE personal_courses SET grade='I' WHERE code='"+row_id+"'");
+                                        }
+                                        else {
+                                            db.execSQL("INSERT INTO personal_courses(code,title,credits,type,grade) VALUES(" + values + ")");
+                                        }
+                                    }
+                                    catch (SQLException e){
+                                        Log.e("COURSEHELPER", "unexpected SQL exception while inserting course", e);
+                                    }
+                                }
+                            }
+                            txt_message.setText(temp);
                             pDialog.hide();
                         }
                         else {
@@ -280,6 +310,7 @@ public class LoginActivity extends AppCompatActivity {
         };
         req_queue.add(transcriptRequest);
         req_queue.add(currentsemRequest);
+        gotoPersonalTemplate();
     }
 
     public void submitLogin(View view){
