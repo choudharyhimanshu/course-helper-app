@@ -27,6 +27,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -39,6 +40,7 @@ import java.util.List;
 
 public class CourseSearchActivity extends AppCompatActivity {
 
+    private ScrollView scrollview_results;
     private TableLayout table_results;
     private EditText inp_search_query;
     private TextView txt_msg;
@@ -53,6 +55,7 @@ public class CourseSearchActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_course_search);
 
+        scrollview_results = (ScrollView) findViewById(R.id.scrollView2);
         table_results = (TableLayout) findViewById(R.id.tableSearchResults);
         inp_search_query = (EditText) findViewById(R.id.inpSearchQuery);
         inp_search_dept = (Spinner) findViewById(R.id.inpSearchDept);
@@ -70,6 +73,7 @@ public class CourseSearchActivity extends AppCompatActivity {
                 public void onClick(View v) {
                     table_results.removeAllViewsInLayout();
                     offset = 0;
+                    scrollview_results.scrollTo(0,0);
                     doSearch();
                 }
             });
