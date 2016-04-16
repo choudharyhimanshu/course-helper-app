@@ -131,6 +131,13 @@ public class PersonalTemplate extends AppCompatActivity {
 
             SQLiteDatabase db = activity.openOrCreateDatabase("coursehelper", MODE_PRIVATE, null);
 
+            class Course {
+                public String code;
+                public String title;
+                public String type;
+                public int credits;
+                public String grade;
+            }
 
             if (getArguments().getInt(ARG_SECTION_NUMBER) == 1){
                 rootView = inflater.inflate(R.layout.fragment_personal_template, container, false);
@@ -146,14 +153,6 @@ public class PersonalTemplate extends AppCompatActivity {
                 TableRow.LayoutParams col_completed_params = new TableRow.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT,0.35f);
 
                 if (shared_pref.contains("dept")){
-
-                    class Course {
-                        public String code;
-                        public String title;
-                        public String type;
-                        public int credits;
-                        public String grade;
-                    }
 
                     List<Course> Comp = new ArrayList<Course>();
                     List<Course> DE = new ArrayList<Course>();
@@ -446,6 +445,113 @@ public class PersonalTemplate extends AppCompatActivity {
             }
             else{
                 rootView = inflater.inflate(R.layout.fragment_course_options, container, false);
+                TextView txt_msg = (TextView) rootView.findViewById(R.id.textView11);
+                TableLayout table_results = (TableLayout) rootView.findViewById(R.id.tableOut);
+
+                // Creating a list of course codes corresponding to the completed courses
+                List<String> completed_prereq = new ArrayList<String>();
+                Cursor cursor = db.rawQuery("SELECT code FROM personal_courses;", null);
+                cursor.moveToFirst();
+                while (!cursor.isAfterLast()){
+                    completed_prereq.add(cursor.getString(0));
+                    cursor.moveToNext();
+                }
+
+                cursor = db.rawQuery("SELECT c.code,c.title,c.instructor,c.credits,c.schedule,c.instr_mail,c.prereq,c.instr_notes FROM courses AS c LEFT JOIN personal_courses AS p ON c.code = p.code WHERE p.code IS NULL;", null);
+                cursor.moveToFirst();
+                int count = cursor.getCount();
+
+                if (count > 0){
+                    int print_count = 0;
+                    while (!cursor.isAfterLast()){
+                        // checking if the pre-requisites are satisfied
+                        boolean allowed = true;
+                        String temp = "";
+                        String[] prereq_array = cursor.getString(6).split("[^A-Z\\d]+");
+                        for (int i = 0; i < prereq_array.length; i++){
+                            //if prereq_array[i] not in completed_prereq then allowed = false
+                            temp += ": :"+prereq_array[i];
+                            if ((!completed_prereq.contains(prereq_array[i])) && (prereq_array[i] != ""))
+                                    allowed = false;
+                        }
+                        Log.e("CHECK_ERROR", "length: " + prereq_array.length+ "; prereqs: " +temp);
+                        if (!allowed) {
+                            cursor.moveToNext();
+                            continue;
+                        }
+
+                        TableRow row = new TableRow(activity);
+                        row.setLayoutParams(new TableLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                        row.setPadding(0, 20, 0, 20);
+                        row.setClickable(true);
+                        if (count%2 == 0) {
+                            row.setBackgroundColor(Color.parseColor("#ffffff"));
+                        }
+
+                        LinearLayout left_panel = new LinearLayout(activity);
+                        left_panel.setOrientation(LinearLayout.VERTICAL);
+                        left_panel.setLayoutParams(new TableRow.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 0.2f));
+
+                        TextView code = new TextView(activity);
+                        code.setText(cursor.getString(0));
+                        code.setTextColor(Color.parseColor("#16a085"));
+                        code.setGravity(Gravity.CENTER);
+                        code.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                        left_panel.addView(code);
+
+                        TextView credits = new TextView(activity);
+                        credits.setText(cursor.getString(3));
+                        credits.setGravity(Gravity.CENTER);
+                        credits.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                        left_panel.addView(credits);
+
+                        row.addView(left_panel);
+
+                        LinearLayout right_panel = new LinearLayout(activity);
+                        right_panel.setOrientation(LinearLayout.VERTICAL);
+                        right_panel.setLayoutParams(new TableRow.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 0.8f));
+
+                        TextView title = new TextView(activity);
+                        title.setText(cursor.getString(1));
+                        title.setTextColor(Color.parseColor("#34495e"));
+                        title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+                        title.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                        right_panel.addView(title);
+
+                        TextView instructor = new TextView(activity);
+                        instructor.setText("Instructor : " + cursor.getString(2) + "(" + cursor.getString(5) + ")");
+                        instructor.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                        right_panel.addView(instructor);
+
+                        TextView instr_notes = new TextView(activity);
+                        instr_notes.setText("Instructor Notes : " + cursor.getString(7));
+                        instr_notes.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                        right_panel.addView(instr_notes);
+
+                        TextView prereq = new TextView(activity);
+                        prereq.setText("Pre-req : " + cursor.getString(6));
+                        prereq.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                        right_panel.addView(prereq);
+
+                        TextView schedule = new TextView(activity);
+                        schedule.setText(cursor.getString(4));
+                        schedule.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                        right_panel.addView(schedule);
+
+                        row.addView(right_panel);
+
+                        table_results.addView(row);
+                        cursor.moveToNext();
+
+                        print_count++;
+                        if (print_count >= 60) break;
+                    }
+                    txt_msg.setText("Displaying " + print_count + " results");
+                }
+                else {
+                    txt_msg.setText("Somehow you have done ALL courses offered in the next semester!!");
+                }
+                cursor.close();
             }
             return rootView;
         }
