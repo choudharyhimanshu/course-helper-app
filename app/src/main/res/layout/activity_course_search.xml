@@ -160,13 +160,28 @@
         android:id="@+id/scrollView2"
         android:layout_below="@+id/linearLayout2"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true">
+        android:layout_alignParentStart="true"
+        android:fillViewport="false">
 
-        <TableLayout
+        <LinearLayout
+            android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/tableSearchResults"
-            android:stretchColumns="*"></TableLayout>
+            android:layout_height="match_parent">
+
+            <TableLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/tableSearchResults"
+                android:stretchColumns="*"></TableLayout>
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Load more"
+                android:id="@+id/button3"
+                android:layout_gravity="center_horizontal"
+                android:onClick="loadMore" />
+        </LinearLayout>
     </ScrollView>
 
 </RelativeLayout>
