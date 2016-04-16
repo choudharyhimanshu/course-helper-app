@@ -37,6 +37,7 @@ import org.w3c.dom.Text;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class PersonalTemplate extends AppCompatActivity {
 
@@ -54,6 +55,7 @@ public class PersonalTemplate extends AppCompatActivity {
      * The {@link ViewPager} that will host the section contents.
      */
     private ViewPager mViewPager;
+    int offset = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -139,7 +141,7 @@ public class PersonalTemplate extends AppCompatActivity {
                 public String grade;
             }
 
-            if (getArguments().getInt(ARG_SECTION_NUMBER) == 1){
+            if (getArguments().getInt(ARG_SECTION_NUMBER) == 1) {
                 rootView = inflater.inflate(R.layout.fragment_personal_template, container, false);
                 TextView txt_msg_stats = (TextView)rootView.findViewById(R.id.txtStatsMsg);
 
@@ -154,15 +156,15 @@ public class PersonalTemplate extends AppCompatActivity {
 
                 if (shared_pref.contains("dept")){
 
-                    List<Course> Comp = new ArrayList<Course>();
-                    List<Course> DE = new ArrayList<Course>();
-                    List<Course> OE = new ArrayList<Course>();
-                    List<Course> SO = new ArrayList<Course>();
-                    List<Course> HSS1 = new ArrayList<Course>();
-                    List<Course> HSS2 = new ArrayList<Course>();
-                    List<Course> UGP1 = new ArrayList<Course>();
-                    List<Course> UGP2 = new ArrayList<Course>();
-                    List<Course> backlogs = new ArrayList<Course>();
+                    List<Course> Comp = new ArrayList<>();
+                    List<Course> DE = new ArrayList<>();
+                    List<Course> OE = new ArrayList<>();
+                    List<Course> SO = new ArrayList<>();
+                    List<Course> HSS1 = new ArrayList<>();
+                    List<Course> HSS2 = new ArrayList<>();
+                    List<Course> UGP1 = new ArrayList<>();
+                    List<Course> UGP2 = new ArrayList<>();
+                    List<Course> backlogs = new ArrayList<>();
 
                     String query = "SELECT code,title,type,credits,grade FROM personal_courses";
 
@@ -449,7 +451,7 @@ public class PersonalTemplate extends AppCompatActivity {
                 TableLayout table_results = (TableLayout) rootView.findViewById(R.id.tableOut);
 
                 // Creating a list of course codes corresponding to the completed courses
-                List<String> completed_prereq = new ArrayList<String>();
+                List<String> completed_prereq = new ArrayList<>();
                 Cursor cursor = db.rawQuery("SELECT code FROM personal_courses;", null);
                 cursor.moveToFirst();
                 while (!cursor.isAfterLast()){
@@ -468,13 +470,13 @@ public class PersonalTemplate extends AppCompatActivity {
                         boolean allowed = true;
                         String temp = "";
                         String[] prereq_array = cursor.getString(6).split("[^A-Z\\d]+");
-                        for (int i = 0; i < prereq_array.length; i++){
+                        for (String aPrereq_array : prereq_array) {
                             //if prereq_array[i] not in completed_prereq then allowed = false
-                            temp += ": :"+prereq_array[i];
-                            if ((!completed_prereq.contains(prereq_array[i])) && (prereq_array[i] != ""))
-                                    allowed = false;
+                            temp += ": :" + aPrereq_array;
+                            if ((!completed_prereq.contains(aPrereq_array)) && (!aPrereq_array.equals("")))
+                                allowed = false;
                         }
-                        Log.e("CHECK_ERROR", "length: " + prereq_array.length+ "; prereqs: " +temp);
+//                        Log.e("CHECK_ERROR", "length: " + prereq_array.length+ "; prereqs: " +temp);
                         if (!allowed) {
                             cursor.moveToNext();
                             continue;
@@ -544,7 +546,7 @@ public class PersonalTemplate extends AppCompatActivity {
                         cursor.moveToNext();
 
                         print_count++;
-                        if (print_count >= 60) break;
+                        if (print_count >= 20) break;
                     }
                     txt_msg.setText("Displaying " + print_count + " results");
                 }
@@ -555,6 +557,119 @@ public class PersonalTemplate extends AppCompatActivity {
             }
             return rootView;
         }
+    }
+
+    public void moreResults (View view){
+        offset += 20;
+        SQLiteDatabase db = this.openOrCreateDatabase("coursehelper", MODE_PRIVATE, null);
+        TextView txt_msg = (TextView) findViewById(R.id.textView11);
+        TableLayout table_results = (TableLayout) findViewById(R.id.tableOut);
+
+        // Creating a list of course codes corresponding to the completed courses
+        List<String> completed_prereq = new ArrayList<>();
+        Cursor cursor = db.rawQuery("SELECT code FROM personal_courses;", null);
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()){
+            completed_prereq.add(cursor.getString(0));
+            cursor.moveToNext();
+        }
+
+        cursor = db.rawQuery("SELECT c.code,c.title,c.instructor,c.credits,c.schedule,c.instr_mail,c.prereq,c.instr_notes FROM courses AS c LEFT JOIN personal_courses AS p ON c.code = p.code WHERE p.code IS NULL;", null);
+        cursor.moveToFirst();
+        cursor.move(offset);
+        int count = cursor.getCount();
+
+        if (count > 0){
+            int print_count = 0;
+            while (!cursor.isAfterLast()){
+                // checking if the pre-requisites are satisfied
+                boolean allowed = true;
+//                String temp = "";
+                String[] prereq_array = cursor.getString(6).split("[^A-Z\\d]+");
+                for (String aPrereq_array : prereq_array) {
+                    //if prereq_array[i] not in completed_prereq then allowed = false
+//                    temp += ": :"+prereq_array[i];
+                    if ((!completed_prereq.contains(aPrereq_array)) && (!aPrereq_array.equals("")))
+                        allowed = false;
+                }
+//                        Log.e("CHECK_ERROR", "length: " + prereq_array.length+ "; prereqs: " +temp);
+                if (!allowed) {
+                    cursor.moveToNext();
+                    continue;
+                }
+
+                TableRow row = new TableRow(this);
+                row.setLayoutParams(new TableLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                row.setPadding(0, 20, 0, 20);
+                row.setClickable(true);
+                if (count%2 == 0) {
+                    row.setBackgroundColor(Color.parseColor("#ffffff"));
+                }
+
+                LinearLayout left_panel = new LinearLayout(this);
+                left_panel.setOrientation(LinearLayout.VERTICAL);
+                left_panel.setLayoutParams(new TableRow.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 0.2f));
+
+                TextView code = new TextView(this);
+                code.setText(cursor.getString(0));
+                code.setTextColor(Color.parseColor("#16a085"));
+                code.setGravity(Gravity.CENTER);
+                code.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                left_panel.addView(code);
+
+                TextView credits = new TextView(this);
+                credits.setText(cursor.getString(3));
+                credits.setGravity(Gravity.CENTER);
+                credits.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                left_panel.addView(credits);
+
+                row.addView(left_panel);
+
+                LinearLayout right_panel = new LinearLayout(this);
+                right_panel.setOrientation(LinearLayout.VERTICAL);
+                right_panel.setLayoutParams(new TableRow.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 0.8f));
+
+                TextView title = new TextView(this);
+                title.setText(cursor.getString(1));
+                title.setTextColor(Color.parseColor("#34495e"));
+                title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+                title.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                right_panel.addView(title);
+
+                TextView instructor = new TextView(this);
+                instructor.setText("Instructor : " + cursor.getString(2) + "(" + cursor.getString(5) + ")");
+                instructor.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                right_panel.addView(instructor);
+
+                TextView instr_notes = new TextView(this);
+                instr_notes.setText("Instructor Notes : " + cursor.getString(7));
+                instr_notes.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                right_panel.addView(instr_notes);
+
+                TextView prereq = new TextView(this);
+                prereq.setText("Pre-req : " + cursor.getString(6));
+                prereq.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                right_panel.addView(prereq);
+
+                TextView schedule = new TextView(this);
+                schedule.setText(cursor.getString(4));
+                schedule.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                right_panel.addView(schedule);
+
+                row.addView(right_panel);
+
+                table_results.addView(row);
+                cursor.moveToNext();
+
+                print_count++;
+                if (print_count >= 20) break;
+            }
+            txt_msg.setText("Displaying " + (print_count + offset) + " results");
+        }
+        else {
+            txt_msg.setText("Somehow you have done ALL courses offered in the next semester!!");
+        }
+        cursor.close();
     }
 
     /**
