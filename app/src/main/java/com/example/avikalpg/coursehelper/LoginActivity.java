@@ -48,7 +48,7 @@ public class LoginActivity extends AppCompatActivity {
     String info_url = "http://oars.cc.iitk.ac.in:6060/Student/Default.asp?menu=91";
     String transcript_url = "http://oars.cc.iitk.ac.in:6060/Student/Transcript.asp";
     String currentsem_url = "http://oars.cc.iitk.ac.in:6060/Student/Afteradd_dropStatus.asp";
-    String degree_template_url = "http://192.168.0.105:8000/api/degree-template/";
+    String degree_template_url = "http://52.25.208.96:8080/api/degree-template/";
     String cookie = "";
 
     @Override
@@ -104,7 +104,7 @@ public class LoginActivity extends AppCompatActivity {
                             editor.putString("name",name);
                             editor.putString("prog",prog);
                             editor.putString("dept",dept);
-                            editor.putString("uname",username);
+                            editor.putString("uname", username);
                             editor.commit();
 
                             getDegreeTemplate(dept);

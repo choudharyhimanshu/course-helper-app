@@ -46,6 +46,7 @@ public class CourseSearchActivity extends AppCompatActivity {
     private Spinner inp_search_fields;
     private Button btn_search_submit;
     private SQLiteDatabase db;
+    private int offset=0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +68,8 @@ public class CourseSearchActivity extends AppCompatActivity {
             btn_search_submit.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    table_results.removeAllViewsInLayout();
+                    offset = 0;
                     doSearch();
                 }
             });
@@ -139,11 +142,12 @@ public class CourseSearchActivity extends AppCompatActivity {
         }
     }
 
+    public void loadMore(View v){
+        offset += 20;
+        doSearch();
+    }
+
     public void doSearch(){
-        if (inp_search_dept.getSelectedItem().toString().equals("All") && TextUtils.isEmpty(inp_search_query.getText().toString()) && table_results.getChildCount() > 0){
-            return;
-        }
-        table_results.removeAllViewsInLayout();
         Boolean flag = false;
         String query = "SELECT code,title,instructor,credits,schedule,instr_mail,prereq,instr_notes FROM courses";
         if (!inp_search_dept.getSelectedItem().toString().equals("All")){
@@ -174,7 +178,7 @@ public class CourseSearchActivity extends AppCompatActivity {
                 query += "instr_notes LIKE '%"+search_query+"%')";
             }
         }
-        query += " LIMIT 60";
+        query += " LIMIT 20 OFFSET "+offset;
         try {
             int count = 1;
             Cursor cursor = db.rawQuery(query,null);
@@ -245,7 +249,13 @@ public class CourseSearchActivity extends AppCompatActivity {
                 table_results.addView(row);
                 cursor.moveToNext();
             }
-            txt_msg.setText("Total results : " +cursor.getCount());
+            if (cursor.getCount() == 0){
+                offset -= 20;
+                txt_msg.setText("No more courses to load.");
+            }
+            else {
+                txt_msg.setText("Total results : " + (cursor.getCount()+offset));
+            }
             cursor.close();
         }
         catch (Exception e){

@@ -30,6 +30,7 @@ public class MainActivity extends AppCompatActivity
     private TextView txt_nav_name;
     private TextView txt_nav_rollno;
     private ImageView img_user;
+    private MenuItem logout_item;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +58,7 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         View headerView = navigationView.getHeaderView(0);
+        logout_item = navigationView.getMenu().getItem(2);
 
         txt_nav_name = (TextView) headerView.findViewById(R.id.txtNavName);
         txt_nav_rollno = (TextView) headerView.findViewById(R.id.txtNavRollno);
@@ -72,6 +74,9 @@ public class MainActivity extends AppCompatActivity
             catch (Exception e){
                 Log.e("PICASSO",e.toString());
             }
+        }
+        else {
+            logout_item.setTitle("Login");
         }
 
         Intent intent = new Intent(this, CourseService.class);
@@ -119,25 +124,37 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.nav_course_search) {
             Intent myIntent = new Intent(this, CourseSearchActivity.class);
             this.startActivity(myIntent);
-        } else if (id == R.id.nav_dept_template) {
-
         } else if (id == R.id.nav_personal) {
-
+            SharedPreferences shared_pref = getSharedPreferences("UserData", MODE_PRIVATE);
+            if (shared_pref.contains("rollno")){
+                Intent myIntent = new Intent(this, PersonalTemplate.class);
+                this.startActivity(myIntent);
+            }
+            else{
+                Intent myIntent = new Intent(this, LoginActivity.class);
+                this.startActivity(myIntent);
+            }
         } else if (id == R.id.nav_logout){
             SharedPreferences shared_pref = getSharedPreferences("UserData", MODE_PRIVATE);
-            SharedPreferences.Editor editor = shared_pref.edit();
-            editor.clear();
-            editor.commit();
-            SQLiteDatabase db = openOrCreateDatabase("coursehelper", MODE_PRIVATE, null);
-            try {
-                db.execSQL("DELETE FROM personal_courses");
+            if (!shared_pref.contains("rollno")) {
+                Intent myIntent = new Intent(this, LoginActivity.class);
+                this.startActivity(myIntent);
             }
-            catch (Exception e){
-                Log.e("LOGOUT", e.toString());
+            else {
+                SharedPreferences.Editor editor = shared_pref.edit();
+                editor.clear();
+                editor.commit();
+                SQLiteDatabase db = openOrCreateDatabase("coursehelper", MODE_PRIVATE, null);
+                try {
+                    db.execSQL("DELETE FROM personal_courses");
+                } catch (Exception e) {
+                    Log.e("LOGOUT", e.toString());
+                }
+                txt_nav_name.setText(null);
+                txt_nav_rollno.setText(null);
+                img_user.setImageResource(0);
+                logout_item.setTitle("Login");
             }
-            txt_nav_name.setText(null);
-            txt_nav_rollno.setText(null);
-            img_user.setImageResource(0);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -159,7 +176,6 @@ public class MainActivity extends AppCompatActivity
 
     public void gotoLogin(View view){
         Intent myIntent = new Intent(this, LoginActivity.class);
-//            myIntent.putExtra("key", value); //Optional parameters
         this.startActivity(myIntent);
     }
 
