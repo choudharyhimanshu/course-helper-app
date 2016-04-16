@@ -29,8 +29,8 @@ public class CourseService extends Service {
     private RequestQueue req_queue;
 
 
-    private String get_courses_url = "http://52.25.208.96:8080/api/courses/";
-    private String update_courses_url = "http://52.25.208.96:8080/api/courses/updates";
+    private String get_courses_url = "http://52.25.208.96/api/courses/";
+    private String update_courses_url = "http://52.25.208.96/api/courses/updates";
 
     public CourseService() {
     }
