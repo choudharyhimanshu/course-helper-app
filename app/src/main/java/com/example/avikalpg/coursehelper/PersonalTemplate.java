@@ -62,7 +62,7 @@ public class PersonalTemplate extends AppCompatActivity {
      */
     private SectionsPagerAdapter mSectionsPagerAdapter;
 
-    private String priority_url = "http://192.168.0.105:8000/api/graph/";
+    private String priority_url = "http://52.25.208.96/api/graph/";
     private SQLiteDatabase db;
     private RequestQueue req_queue;
 

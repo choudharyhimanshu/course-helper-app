@@ -53,9 +53,8 @@ public class LoginActivity extends AppCompatActivity {
     String info_url = "http://oars.cc.iitk.ac.in:6060/Student/Default.asp?menu=91";
     String transcript_url = "http://oars.cc.iitk.ac.in:6060/Student/Transcript.asp";
     String currentsem_url = "http://oars.cc.iitk.ac.in:6060/Student/Afteradd_dropStatus.asp";
-    //    String degree_template_url = "http://52.25.208.96/api/degree-template/";
-    String degree_template_url = "http://192.168.0.105:8000/api/degree-template/";    // AVIKALP
-    String send_courses_url = "http://192.168.0.105:8000/api/update-user-courses/";    // AVIKALP
+    String degree_template_url = "http://52.25.208.96/api/degree-template/";
+    String send_courses_url = "http://52.25.208.96/api/update-user-courses/";
     String cookie = "";
     String serverCookie = "";
     String csrftoken = "";
@@ -81,6 +80,8 @@ public class LoginActivity extends AppCompatActivity {
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+
+        txt_message.setText("DISCLAIMER: OARS Login does not work between 12 midnight and 6 A.M. IST");
     }
 
     private boolean createTablePersonalCourses() {
