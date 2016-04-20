@@ -54,8 +54,8 @@ public class LoginActivity extends AppCompatActivity {
     String transcript_url = "http://oars.cc.iitk.ac.in:6060/Student/Transcript.asp";
     String currentsem_url = "http://oars.cc.iitk.ac.in:6060/Student/Afteradd_dropStatus.asp";
     //    String degree_template_url = "http://52.25.208.96/api/degree-template/";
-    String degree_template_url = "http://172.24.65.204:8000/api/degree-template/";    // AVIKALP
-    String send_courses_url = "http://172.24.65.204:8000/api/update-user-courses/";    // AVIKALP
+    String degree_template_url = "http://192.168.0.105:8000/api/degree-template/";    // AVIKALP
+    String send_courses_url = "http://192.168.0.105:8000/api/update-user-courses/";    // AVIKALP
     String cookie = "";
     String serverCookie = "";
     String csrftoken = "";
@@ -334,10 +334,11 @@ public class LoginActivity extends AppCompatActivity {
         };
         req_queue.add(transcriptRequest);
         req_queue.add(currentsemRequest);
-//        gotoPersonalTemplate();
+        gotoPersonalTemplate();
     }
 
     private boolean sendCoursesToServer() throws JSONException {
+        final SharedPreferences shared_pref = getSharedPreferences("UserData", MODE_PRIVATE);
         // sending the HTTP request
         StringRequest sendCoursesRequest = new StringRequest(Request.Method.POST, send_courses_url,
                 new Response.Listener<String>() {
@@ -379,8 +380,8 @@ public class LoginActivity extends AppCompatActivity {
                 JSONArray cCourses = new JSONArray(completedCourses);
 
                 Map<String, String> params = new HashMap<>();
-                params.put("roll_no", "12178");
-                params.put("dept", "CSE");
+                params.put("roll_no", shared_pref.getString("rollno", "NoRollNo"));
+                params.put("dept", shared_pref.getString("dept", "NoDept"));
                 params.put("courses", cCourses.toString());
                 return params;
             }

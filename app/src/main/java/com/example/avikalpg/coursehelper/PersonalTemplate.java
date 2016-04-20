@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -32,6 +33,16 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.w3c.dom.Text;
 
 import java.util.ArrayList;
@@ -51,16 +62,71 @@ public class PersonalTemplate extends AppCompatActivity {
      */
     private SectionsPagerAdapter mSectionsPagerAdapter;
 
+    private String priority_url = "http://192.168.0.105:8000/api/graph/";
+    private SQLiteDatabase db;
+    private RequestQueue req_queue;
+
+
     /**
      * The {@link ViewPager} that will host the section contents.
      */
     private ViewPager mViewPager;
     int offset = 0;
 
+
+    public void updatePriorities() {
+        JsonObjectRequest priorityRequest = new JsonObjectRequest( Request.Method.GET, priority_url, null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            if(response.getBoolean("success")){
+                                JSONArray prior = response.getJSONArray("data");
+                                for (int i=0; i < prior.length();i++){
+                                    JSONObject priorityCourse = prior.getJSONObject(i);
+                                    String courseCode = priorityCourse.getString("course");
+                                    int coursePriority = priorityCourse.getInt("priority");
+                                    try {
+                                        db.execSQL("UPDATE courses SET priority = " + coursePriority + " WHERE code = '" + courseCode + "'");
+                                    }
+                                    catch (SQLException e){
+                                        Log.e("COURSEHELPER", "unexpected SQL exception while updating priorities", e);
+                                    }
+                                }
+                            }
+                        }
+                        catch (JSONException e){
+                            Log.e("COURSEHELPER", "unexpected JSON exception while updating priorities", e);
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e("COURSEHELPER", "unexpected request exception when updating priorities. Error : "+error.toString(), error);
+            }
+        });
+        try {
+            req_queue.add(priorityRequest);
+        }
+        catch (Exception e) {
+            Log.e("COURSEHELPER", "unexpected priorityRequest Queue exception", e);
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_personal_template);
+        db = openOrCreateDatabase("coursehelper", MODE_PRIVATE, null);
+        req_queue = Volley.newRequestQueue(this);
+
+        // Updating the database to get the course priority list for recommendation
+        SharedPreferences shared_pref = getSharedPreferences("UserData", MODE_PRIVATE);
+        if (shared_pref.contains("rollno")) {
+            priority_url += shared_pref.getString("rollno", "NoRollNo") + "/";
+            Log.e("PRIORITY", "Entering the required function");
+            updatePriorities();
+        }
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -75,6 +141,7 @@ public class PersonalTemplate extends AppCompatActivity {
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
+
     }
 
 
@@ -459,7 +526,7 @@ public class PersonalTemplate extends AppCompatActivity {
                     cursor.moveToNext();
                 }
 
-                cursor = db.rawQuery("SELECT c.code,c.title,c.instructor,c.credits,c.schedule,c.instr_mail,c.prereq,c.instr_notes FROM courses AS c LEFT JOIN personal_courses AS p ON c.code = p.code WHERE p.code IS NULL;", null);
+                cursor = db.rawQuery("SELECT c.code,c.title,c.instructor,c.credits,c.schedule,c.instr_mail,c.prereq,c.instr_notes,c.priority FROM courses AS c LEFT JOIN personal_courses AS p ON c.code = p.code WHERE p.code IS NULL ORDER BY c.priority ASC;", null);
                 cursor.moveToFirst();
                 int count = cursor.getCount();
 
@@ -506,6 +573,12 @@ public class PersonalTemplate extends AppCompatActivity {
                         credits.setGravity(Gravity.CENTER);
                         credits.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
                         left_panel.addView(credits);
+
+//                        TextView priority = new TextView(activity);
+//                        credits.setText(cursor.getString(8));
+//                        credits.setGravity(Gravity.CENTER);
+//                        credits.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+//                        left_panel.addView(priority);
 
                         row.addView(left_panel);
 
@@ -574,7 +647,7 @@ public class PersonalTemplate extends AppCompatActivity {
             cursor.moveToNext();
         }
 
-        cursor = db.rawQuery("SELECT c.code,c.title,c.instructor,c.credits,c.schedule,c.instr_mail,c.prereq,c.instr_notes FROM courses AS c LEFT JOIN personal_courses AS p ON c.code = p.code WHERE p.code IS NULL;", null);
+        cursor = db.rawQuery("SELECT c.code,c.title,c.instructor,c.credits,c.schedule,c.instr_mail,c.prereq,c.instr_notes,c.priority FROM courses AS c LEFT JOIN personal_courses AS p ON c.code = p.code WHERE p.code IS NULL ORDER BY c.priority;", null);
         cursor.moveToFirst();
         cursor.move(offset);
         int count = cursor.getCount();
@@ -622,6 +695,12 @@ public class PersonalTemplate extends AppCompatActivity {
                 credits.setGravity(Gravity.CENTER);
                 credits.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
                 left_panel.addView(credits);
+
+                TextView priority = new TextView(this);
+                credits.setText(cursor.getString(8));
+                credits.setGravity(Gravity.CENTER);
+                credits.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                left_panel.addView(priority);
 
                 row.addView(left_panel);
 

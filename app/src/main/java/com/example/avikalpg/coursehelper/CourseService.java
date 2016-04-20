@@ -2,6 +2,7 @@ package com.example.avikalpg.coursehelper;
 
 import android.app.Service;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
@@ -21,6 +22,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class CourseService extends Service {
 
     private static final long COURSES_UPDATE_INTERVAL = 10800*1000; // 3 hours
@@ -29,8 +33,11 @@ public class CourseService extends Service {
     private RequestQueue req_queue;
 
 
-    private String get_courses_url = "http://52.25.208.96/api/courses/";
-    private String update_courses_url = "http://52.25.208.96/api/courses/updates";
+//    private String get_courses_url = "http://52.25.208.96/api/courses/";
+//    private String update_courses_url = "http://52.25.208.96/api/courses/updates";
+    private String get_courses_url = "http://192.168.0.105:8000/api/courses/";
+    private String update_courses_url = "http://192.168.0.105:8000/api/courses/updates";
+    private String priority_url = "http://192.168.0.105:8000/api/graph/";
 
     public CourseService() {
     }
@@ -60,7 +67,7 @@ public class CourseService extends Service {
 
     private boolean haveCourseData(){
         try {
-            db.execSQL("CREATE TABLE IF NOT EXISTS courses(code VARCHAR PRIMARY KEY,title VARCHAR,instructor VARCHAR,instr_mail VARCHAR,credits INTEGER,credits_distrb VARCHAR,prereq VARCHAR,schedule VARCHAR,dept VARCHAR,instr_notes VARCHAR);");
+            db.execSQL("CREATE TABLE IF NOT EXISTS courses(code VARCHAR PRIMARY KEY,title VARCHAR,instructor VARCHAR,instr_mail VARCHAR,credits INTEGER,credits_distrb VARCHAR,prereq VARCHAR,schedule VARCHAR,dept VARCHAR,instr_notes VARCHAR, priority UNSIGNED INT);");
             Cursor cursor = db.rawQuery("SELECT * FROM courses", null);
             int count = cursor.getCount();
             cursor.close();
@@ -74,6 +81,7 @@ public class CourseService extends Service {
         return  false;
     }
 
+
     private void getCourseList(){
         JsonObjectRequest jsObjRequest = new JsonObjectRequest
                 (Request.Method.GET, get_courses_url, null, new Response.Listener<JSONObject>() {
@@ -86,7 +94,7 @@ public class CourseService extends Service {
                                     JSONObject course = courses.getJSONObject(i);
                                     String values = String.format("'%s','%s','%s','%s',%d,'%s','%s','%s','%s','%s'",course.getString("code"),course.getString("title"),course.getString("instructor"),course.getString("instr_mail" ),course.getInt("credits" ),course.getString("credits_distrb"),course.getString("prereq" ),course.getString("schedule").replaceAll("(\\r|\\n)", "").trim(),course.getString("dept"),course.getString("instr_notes"));
                                     try {
-                                        db.execSQL("INSERT INTO courses(code,title,instructor,instr_mail,credits,credits_distrb,prereq,schedule,dept,instr_notes) VALUES(" + values + ")");
+                                        db.execSQL("INSERT INTO courses(code,title,instructor,instr_mail,credits,credits_distrb,prereq,schedule,dept,instr_notes,priority) VALUES(" + values + ",4294967295)");
                                     }
                                     catch (SQLException e){
                                         Log.e("COURSEHELPER", "unexpected SQL exception while inserting course", e);
@@ -110,6 +118,7 @@ public class CourseService extends Service {
         catch (Exception e) {
             Log.e("COURSEHELPER", "unexpected Request Queue exception", e);
         }
+        SharedPreferences shared_pref = getSharedPreferences("UserData", MODE_PRIVATE);
     }
 
     Runnable updateCourseList = new Runnable() {

@@ -85,7 +85,7 @@ public class CourseSearchActivity extends AppCompatActivity {
 
     private boolean haveCourseData(){
         try {
-            db.execSQL("CREATE TABLE IF NOT EXISTS courses(code VARCHAR PRIMARY KEY,title VARCHAR,instructor VARCHAR,instr_mail VARCHAR,credits INTEGER,credits_distrb VARCHAR,prereq VARCHAR,schedule VARCHAR,dept VARCHAR,instr_notes VARCHAR);");
+            db.execSQL("CREATE TABLE IF NOT EXISTS courses(code VARCHAR PRIMARY KEY, title VARCHAR, instructor VARCHAR, instr_mail VARCHAR, credits INTEGER, credits_distrb VARCHAR, prereq VARCHAR, schedule VARCHAR, dept VARCHAR, instr_notes VARCHAR, priority UNSIGNED INT);");
             Cursor cursor = db.rawQuery("SELECT * FROM courses", null);
             int count = cursor.getCount();
             cursor.close();
@@ -129,7 +129,7 @@ public class CourseSearchActivity extends AppCompatActivity {
 
     private void setColumns(){
         try {
-            List<String> list = new ArrayList<String>();
+            List<String> list = new ArrayList<>();
             list.add("All");
             Cursor cursor = db.rawQuery("SELECT DISTINCT dept FROM courses", null);
             cursor.moveToFirst();
@@ -138,7 +138,7 @@ public class CourseSearchActivity extends AppCompatActivity {
                 cursor.moveToNext();
             }
             cursor.close();
-            ArrayAdapter<String> list_adapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_dropdown_item,list);
+            ArrayAdapter<String> list_adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, list);
             inp_search_dept.setAdapter(list_adapter);
         }
         catch (SQLException e){
