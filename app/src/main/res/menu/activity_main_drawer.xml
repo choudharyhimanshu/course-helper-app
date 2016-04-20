@@ -3,17 +3,9 @@
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_profile_settings"
-            android:icon="@drawable/ic_menu_manage"
-            android:title="@string/profile" />
-        <item
             android:id="@+id/nav_course_search"
             android:icon="@drawable/ic_menu_camera"
             android:title="@string/course_search" />
-        <item
-            android:id="@+id/nav_dept_template"
-            android:icon="@drawable/ic_menu_gallery"
-            android:title="@string/dept_template" />
         <item
             android:id="@+id/nav_personal"
             android:icon="@drawable/ic_menu_slideshow"
